@@ -16,9 +16,12 @@ Module: cam.py
 
 import cv2
 import sys
+import argparse
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    arguments = parser.parse_args()
     cascPath = "haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
     args = sys.argv
