@@ -2,6 +2,16 @@
 """Detect Faces using Computer Vision."""
 import cv2
 import argparse
+import random
+
+CrossHairs = [
+    "admin.png",
+    "irrelevant.png",
+    "analog.png",
+    "threat.png",
+    "samaritan.png",
+    "indigo.png",
+]
 
 
 def detect_faces(frame, file_decorator="admin.png"):
@@ -39,6 +49,7 @@ def detect_faces(frame, file_decorator="admin.png"):
             )
 
     cv2.imshow("Video", frame)
+    return frame
 
 
 def main():
@@ -62,18 +73,38 @@ def main():
     if args.webcam:
         print("webcam")
         video_capture = cv2.VideoCapture(0)
+        frame_width = video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+        frame_height = video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        fps = video_capture.get(cv2.CAP_PROP_FPS)
+        fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+        outfilename = "webcam_capture.mp4"
+        video_writer = cv2.VideoWriter(
+            outfilename,
+            fourcc,
+            int(fps),
+            (int(frame_width), int(frame_height)),
+            True,
+        )
+        # Print these values:
+        print("CV_CAP_PROP_FRAME_WIDTH: '{}'".format(frame_width))
+        print("CV_CAP_PROP_FRAME_HEIGHT : '{}'".format(frame_height))
+        print("CAP_PROP_FPS : '{}'".format(fps))
         while True:
             ret, frame = video_capture.read()
-            detect_faces(frame)
+            parsed = detect_faces(
+                frame, file_decorator=random.choice(CrossHairs))
+            video_writer.write(parsed)
+            # detect_faces(frame, file_decorator=CrossHairs[-2])
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
         video_capture.release()
+        video_writer.release()
         cv2.destroyAllWindows()
     else:
         print(f"image: {args.filename}")
         frame = cv2.imread(args.filename, -1)
         while True:
-            detect_faces(frame)
+            detect_faces(frame, file_decorator=random.choice(CrossHairs))
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
         cv2.destroyAllWindows()
